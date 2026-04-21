@@ -1,0 +1,95 @@
+openapi: 3.0.0
+info:
+  title: Payments API
+  description: Banking payments service for OpenBankAPI Gateway
+  version: 1.0.0
+servers:
+  - url: http://localhost:3003
+paths:
+  /payments/initiate:
+    post:
+      summary: Initiate a payment
+      operationId: initiatePayment
+      security:
+        - OAuth2: [payments:write]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - account_from
+                - account_to
+                - amount
+              properties:
+                account_from:
+                  type: string
+                account_to:
+                  type: string
+                amount:
+                  type: number
+                currency:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Payment initiated
+        '400':
+          description: Missing required fields
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden — insufficient scope
+  /payments/{id}/status:
+    get:
+      summary: Get payment status
+      operationId: getPaymentStatus
+      security:
+        - OAuth2: [payments:read]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Payment status
+        '404':
+          description: Payment not found
+  /payments/cancel:
+    post:
+      summary: Cancel a payment
+      operationId: cancelPayment
+      security:
+        - OAuth2: [payments:write]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - payment_id
+              properties:
+                payment_id:
+                  type: string
+      responses:
+        '200':
+          description: Payment cancelled
+        '400':
+          description: Cannot cancel completed payment
+        '404':
+          description: Payment not found
+components:
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://localhost:9443/oauth2/token
+          scopes:
+            payments:read: Read payment status
+            payments:write: Initiate and cancel payments

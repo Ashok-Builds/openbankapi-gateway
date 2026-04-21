@@ -1,0 +1,62 @@
+openapi: 3.0.0
+info:
+  title: Accounts API
+  description: Banking accounts service for OpenBankAPI Gateway
+  version: 1.0.0
+servers:
+  - url: http://localhost:3001
+paths:
+  /accounts:
+    get:
+      summary: Get all accounts
+      operationId: getAccounts
+      security:
+        - OAuth2: [accounts:read]
+      responses:
+        '200':
+          description: List of accounts
+        '401':
+          description: Unauthorized
+  /accounts/{id}:
+    get:
+      summary: Get account by ID
+      operationId: getAccountById
+      security:
+        - OAuth2: [accounts:read]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Account details
+        '404':
+          description: Account not found
+  /accounts/{id}/balance:
+    get:
+      summary: Get account balance
+      operationId: getAccountBalance
+      security:
+        - OAuth2: [accounts:read]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Account balance
+        '404':
+          description: Account not found
+components:
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://localhost:9443/oauth2/token
+          scopes:
+            accounts:read: Read account data

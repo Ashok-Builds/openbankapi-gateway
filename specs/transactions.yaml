@@ -1,0 +1,65 @@
+openapi: 3.0.0
+info:
+  title: Transactions API
+  description: Banking transactions service for OpenBankAPI Gateway
+  version: 1.0.0
+servers:
+  - url: http://localhost:3002
+paths:
+  /transactions:
+    get:
+      summary: Get all transactions
+      operationId: getTransactions
+      security:
+        - OAuth2: [transactions:read]
+      responses:
+        '200':
+          description: List of transactions
+        '401':
+          description: Unauthorized
+  /transactions/{id}:
+    get:
+      summary: Get transaction by ID
+      operationId: getTransactionById
+      security:
+        - OAuth2: [transactions:read]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Transaction details
+        '404':
+          description: Transaction not found
+  /transactions/filter:
+    post:
+      summary: Filter transactions
+      operationId: filterTransactions
+      security:
+        - OAuth2: [transactions:read]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                account_id:
+                  type: string
+                type:
+                  type: string
+      responses:
+        '200':
+          description: Filtered transactions
+components:
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://localhost:9443/oauth2/token
+          scopes:
+            transactions:read: Read transaction data
