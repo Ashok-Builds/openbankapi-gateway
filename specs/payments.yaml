@@ -43,7 +43,7 @@ paths:
         '403':
           description: Forbidden — insufficient scope
   /payments/{id}/status:
-    get:
+   get:
       summary: Get payment status
       operationId: getPaymentStatus
       security:
