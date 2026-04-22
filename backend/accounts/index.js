@@ -14,9 +14,9 @@ const server = http.createServer((req, res) => {
   const method = req.method;
 
   if (method === 'GET' && url === '/accounts') {
+    const sanitized = accounts.map(({ internal_ref, ...rest }) => rest);
     res.writeHead(200);
-    res.end(JSON.stringify({ accounts }));
-
+    res.end(JSON.stringify({ accounts: sanitized }));
   } else if (method === 'GET' && url.startsWith('/accounts/') && url.endsWith('/balance')) {
     const id = url.split('/')[2];
     const account = accounts.find(a => a.id === id);
