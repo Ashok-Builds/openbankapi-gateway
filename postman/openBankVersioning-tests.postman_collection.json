@@ -1,0 +1,35 @@
+{
+  "info": {
+    "_postman_id": "2ec05ffd-cc60-4dc8-a14a-05de60cbcdec",
+    "name": "openBankVersioning-tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54183607",
+    "_collection_link": "https://go.postman.co/collection/54183607-2ec05ffd-cc60-4dc8-a14a-05de60cbcdec?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "fintech app bearer token",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "version1-with product",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "version2-direct api",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    }
+  ]
+}
