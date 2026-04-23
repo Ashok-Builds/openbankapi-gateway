@@ -1,0 +1,133 @@
+name: OpenBankAPI Gateway CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate-specs:
+    name: Validate OpenAPI Specs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install swagger-cli
+        run: npm install -g @apidevtools/swagger-cli
+
+      - name: Validate Accounts API spec
+        run: swagger-cli validate specs/accounts.yaml
+
+      - name: Validate Transactions API spec
+        run: swagger-cli validate specs/transactions.yaml
+
+      - name: Validate Payments API spec
+        run: swagger-cli validate specs/payments.yaml
+
+  test-backends:
+    name: Test Backend APIs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Start all backend services
+        run: |
+          node backend/accounts/index.js &
+          node backend/accounts-v2/index.js &
+          node backend/transactions/index.js &
+          node backend/payments/index.js &
+          sleep 3
+
+      - name: Test Accounts API v1
+        run: |
+          RESPONSE=$(curl -s http://localhost:3001/accounts)
+          if echo "$RESPONSE" | grep -q "owner"; then
+            echo "Accounts v1 PASSED — owner field present"
+          else
+            echo "Accounts v1 FAILED — owner field missing"
+            exit 1
+          fi
+
+      - name: Test Accounts API v2
+        run: |
+          RESPONSE=$(curl -s http://localhost:3004/accounts)
+          if echo "$RESPONSE" | grep -q "account_holder"; then
+            echo "Accounts v2 PASSED — account_holder field present"
+          else
+            echo "Accounts v2 FAILED — account_holder field missing"
+            exit 1
+          fi
+
+      - name: Test Transactions API
+        run: |
+          curl -f http://localhost:3002/transactions
+          echo "Transactions API PASSED"
+
+      - name: Test Payments API — valid initiate
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+            http://localhost:3003/payments/initiate \
+            -H "Content-Type: application/json" \
+            -d '{"account_from":"ACC001","account_to":"ACC002","amount":2000}')
+          if [ "$STATUS" = "201" ]; then
+            echo "Payment initiate PASSED — got 201"
+          else
+            echo "Payment initiate FAILED — expected 201 got $STATUS"
+            exit 1
+          fi
+
+      - name: Test Payments API — validation 400
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+            http://localhost:3003/payments/initiate \
+            -H "Content-Type: application/json" \
+            -d '{"account_from":"ACC001"}')
+          if [ "$STATUS" = "400" ]; then
+            echo "Validation test PASSED — got 400"
+          else
+            echo "Validation test FAILED — expected 400 got $STATUS"
+            exit 1
+          fi
+
+      - name: Verify v1 and v2 return different fields
+        run: |
+          V1=$(curl -s http://localhost:3001/accounts)
+          V2=$(curl -s http://localhost:3004/accounts)
+          if echo "$V1" | grep -q "owner" && echo "$V2" | grep -q "account_holder"; then
+            echo "Versioning test PASSED — v1 has owner, v2 has account_holder"
+          else
+            echo "Versioning test FAILED"
+            exit 1
+          fi
+
+  summary:
+    name: CI Summary
+    runs-on: ubuntu-latest
+    needs: [validate-specs, test-backends]
+    steps:
+      - name: Print summary
+        run: |
+          echo "================================="
+          echo "OpenBankAPI Gateway CI Complete"
+          echo "================================="
+          echo "Commit: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "By: ${{ github.actor }}"
+          echo "================================="
+          echo "Specs validated: accounts, transactions, payments"
+          echo "Backends tested: ports 3001, 3002, 3003, 3004"
+          echo "Versioning verified: v1 owner field, v2 account_holder field"
+          echo "================================="
