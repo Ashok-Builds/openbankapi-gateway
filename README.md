@@ -233,6 +233,11 @@ GET https://localhost:8243/banking/1.0.0/accounts
 Authorization: Bearer <access_token>
 ```
 
+6. **Response caching** — Enabling WSO2 response caching on GET /accounts 
+reduced response time from 200ms to 17ms. The backend is called once every 
+300 seconds regardless of how many consumers are calling — critical for 
+high traffic banking systems.
+
 ---
 
 ## WSO2 Portal Configuration
