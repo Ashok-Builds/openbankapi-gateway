@@ -47,20 +47,24 @@ This is the same architectural pattern used by NPCI for UPI APIs, HDFC for Open 
 │  ④ Strip internal_ref      → clean response             │
 │  ⑤ Route to backend        → forward request            │
 │                                                         │
-└───────┬──────────────┬──────────────┬───────────────────┘
-        │              │              │
-        ▼              ▼              ▼
-┌──────────────┐ ┌──────────────┐ ┌──────────────┐
-│ Accounts API │ │Transactions  │ │ Payments API │
-│  Node.js     │ │     API      │ │  Node.js     │
-│  port 3001   │ │  Node.js     │ │  port 3003   │
-│              │ │  port 3002   │ │              │
-│ GET /accounts│ │GET /trans... │ │POST /payments│
-│ GET /:id     │ │GET /:id      │ │  /initiate   │
-│ GET /:id/    │ │POST /filter  │ │GET /:id/     │
-│   balance    │ │              │ │  status      │
-└──────────────┘ └──────────────┘ │POST /cancel  │
-                                   └──────────────┘
+└───┬──────────────┬──────────────┬──────────────┬────────┘
+    │              │              │              │
+    ▼              ▼              ▼              ▼
+┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐
+│ Accounts │  │ Accounts │  │  Trans.  │  │ Payments │
+│  API v1  │  │  API v2  │  │   API    │  │   API    │
+│ Node.js  │  │ Node.js  │  │ Node.js  │  │ Node.js  │
+│ port3001 │  │ port3004 │  │ port3002 │  │ port3003 │
+│          │  │          │  │          │  │          │
+│  field:  │  │  field:  │  │GET /trans│  │POST init │
+│  owner   │  │ account_ │  │GET /:id  │  │GET status│
+│          │  │  holder  │  │POST      │  │POST      │
+│GET /accts│  │GET /accts│  │ /filter  │  │ /cancel  │
+│GET /:id  │  │GET /:id  │  │          │  │          │
+│GET /bal  │  │GET /bal  │  │          │  │          │
+└──────────┘  └──────────┘  └──────────┘  └──────────┘
+  v1.0.0 ◄────────────────► v2.0.0
+       API Versioning — both live simultaneously
 ```
 
 ---
@@ -233,11 +237,6 @@ GET https://localhost:8243/banking/1.0.0/accounts
 Authorization: Bearer <access_token>
 ```
 
-6. **Response caching** — Enabling WSO2 response caching on GET /accounts 
-reduced response time from 200ms to 17ms. The backend is called once every 
-300 seconds regardless of how many consumers are calling — critical for 
-high traffic banking systems.
-
 ---
 
 ## WSO2 Portal Configuration
@@ -324,6 +323,8 @@ bash apictl/deploy.sh
 4. **APIOps** — Managing API configurations as code using apictl means deployments are repeatable, reviewable, and version controlled — same as application code.
 
 5. **Separation of concerns** — Security, throttling, field masking, and monitoring all live in WSO2 — not in Node.js code. This is the architecture pattern that scales.
+
+6. **Response caching** — Enabling WSO2 response caching on GET /accounts reduced response time from 200ms to 17ms. The backend is called once every 300 seconds regardless of how many consumers are calling — critical for high traffic banking systems.
 
 ---
 
