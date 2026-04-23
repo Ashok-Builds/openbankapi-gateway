@@ -1,0 +1,154 @@
+openapi: 3.0.0
+info:
+  title: AccountsAPI
+  description: Banking accounts service for OpenBankAPI Gateway
+  version: 1.0.0
+servers:
+ -
+  url: http://localhost:3001
+security:
+ -
+  default: []
+paths:
+  /accounts:
+    get:
+      summary: Get all accounts
+      operationId: getAccounts
+      responses:
+        "200":
+          description: List of accounts
+        "401":
+          description: Unauthorized
+      security:
+       -
+        OAuth2:
+         - accounts:read
+       -
+        default:
+         - accounts:read
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+      x-wso2-application-security:
+        security-types:
+         - oauth2
+        optional: false
+  /accounts/{id}:
+    get:
+      summary: Get account by ID
+      operationId: getAccountById
+      parameters:
+       -
+        name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Account details
+        "404":
+          description: Account not found
+      security:
+       -
+        OAuth2:
+         - accounts:read
+       -
+        default:
+         - accounts:read
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+      x-wso2-application-security:
+        security-types:
+         - oauth2
+        optional: false
+  /accounts/{id}/balance:
+    get:
+      summary: Get account balance
+      operationId: getAccountBalance
+      parameters:
+       -
+        name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Account balance
+        "404":
+          description: Account not found
+      security:
+       -
+        OAuth2:
+         - accounts:read
+       -
+        default:
+         - accounts:read
+      x-auth-type: Application & Application User
+      x-throttling-tier: Unlimited
+      x-wso2-application-security:
+        security-types:
+         - oauth2
+        optional: false
+components:
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://localhost:9443/oauth2/token
+          scopes:
+            accounts:read: Read account data
+    default:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://test.com
+          scopes:
+            accounts:read: Read account data
+          x-scopes-bindings:
+            accounts:read: ""
+x-wso2-auth-header: Authorization
+x-wso2-api-key-header: ApiKey
+x-wso2-cors:
+  corsConfigurationEnabled: false
+  accessControlAllowOrigins:
+   - '*'
+  accessControlAllowCredentials: false
+  accessControlAllowHeaders:
+   - authorization
+   - Access-Control-Allow-Origin
+   - Content-Type
+   - SOAPAction
+   - apikey
+   - Internal-Key
+  accessControlAllowMethods:
+   - GET
+   - PUT
+   - POST
+   - DELETE
+   - PATCH
+   - OPTIONS
+x-wso2-production-endpoints:
+  urls:
+   - http://localhost:3001
+  type: http
+x-wso2-sandbox-endpoints:
+  urls:
+   - http://localhost:3001
+  type: http
+x-wso2-basePath: /accounts/1.0.0
+x-wso2-transports:
+ - http
+ - https
+x-wso2-application-security:
+  security-types:
+   - oauth2
+  optional: false
+x-wso2-response-cache:
+  enabled: false
+  cacheTimeoutInSeconds: 300
