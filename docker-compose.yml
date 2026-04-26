@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+
+  accounts:
+    build: ./backend/accounts
+    container_name: accounts-api
+    ports:
+      - "3001:3001"
+    networks:
+      - banking-network
+    restart: unless-stopped
+
+  accounts-v2:
+    build: ./backend/accounts-v2
+    container_name: accounts-api-v2
+    ports:
+      - "3004:3004"
+    networks:
+      - banking-network
+    restart: unless-stopped
+
+  transactions:
+    build: ./backend/transactions
+    container_name: transactions-api
+    ports:
+      - "3002:3002"
+    networks:
+      - banking-network
+    restart: unless-stopped
+
+  payments:
+    build: ./backend/payments
+    container_name: payments-api
+    ports:
+      - "3003:3003"
+    networks:
+      - banking-network
+    restart: unless-stopped
+
+networks:
+  banking-network:
+    driver: bridge
