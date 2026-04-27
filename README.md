@@ -1,5 +1,14 @@
 # OpenBankAPI Gateway
 
+[![CI Pipeline](https://github.com/YOUR_USERNAME/openbankapi-gateway/actions/workflows/api-ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/openbankapi-gateway/actions/workflows/api-ci.yml)
+![WSO2](https://img.shields.io/badge/WSO2-API%20Manager%204.6-FF6600?style=flat&logo=data:image/png;base64,iVBORw0KGgo=)
+![Node.js](https://img.shields.io/badge/Node.js-18%20LTS-339933?style=flat&logo=nodedotjs&logoColor=white)
+![React](https://img.shields.io/badge/React-Vite%20%2B%20MUI-61DAFB?style=flat&logo=react&logoColor=black)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat&logo=docker&logoColor=white)
+![OAuth2](https://img.shields.io/badge/Auth-OAuth2%20JWT-635BFF?style=flat)
+![Analytics](https://img.shields.io/badge/Analytics-Choreo-00B4D8?style=flat)
+![License](https://img.shields.io/badge/License-MIT-green?style=flat)
+
 A managed API gateway simulating an open banking platform built on **WSO2 API Manager 4.6**. This project demonstrates how banks like HDFC, Axis, and NPCI expose their core services — Accounts, Transactions, and Payments — to fintech partners through a secure, governed, and throttled API gateway.
 
 ---
@@ -14,6 +23,8 @@ Instead of exposing Node.js backend services directly, all traffic goes through 
 - Strips sensitive internal fields from responses
 - Logs all API activity for audit compliance
 - Manages full API lifecycle including versioning
+- Visualizes real-time data via React + MUI dashboard
+- Monitors API traffic via Choreo Analytics
 
 This is the same architectural pattern used by NPCI for UPI APIs, HDFC for Open Banking, and Airtel for their developer API marketplace.
 
@@ -22,49 +33,53 @@ This is the same architectural pattern used by NPCI for UPI APIs, HDFC for Open 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│              CONSUMERS                                   │
-│   FintechApp          SandboxApp          Postman        │
-│  (Standard tier)     (Sandbox tier)     (Testing)        │
-└──────────────┬─────────────┬──────────────┬─────────────┘
-               │             │              │
-               │   HTTPS + Bearer JWT token │
-               └─────────────┴──────────────┘
-                             │
-                             ▼
-┌─────────────────────────────────────────────────────────┐
-│           WSO2 API MANAGER 4.6                          │
-│                                                         │
-│  Management (port 9443)                                 │
-│  ├── Admin Portal    → throttling tiers, key manager    │
-│  ├── Publisher Portal → publish APIs, set scopes        │
-│  └── Developer Portal → subscribe apps, get tokens      │
-│                                                         │
-│  Gateway Runtime (port 8243)                            │
-│  ① Validate JWT token      → 401 if invalid             │
-│  ② Check OAuth2 scope      → 403 if wrong scope         │
-│  ③ Enforce rate limit      → 429 if exceeded            │
-│  ④ Strip internal_ref      → clean response             │
-│  ⑤ Route to backend        → forward request            │
-│                                                         │
-└───┬──────────────┬──────────────┬──────────────┬────────┘
-    │              │              │              │
-    ▼              ▼              ▼              ▼
-┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐
-│ Accounts │  │ Accounts │  │  Trans.  │  │ Payments │
-│  API v1  │  │  API v2  │  │   API    │  │   API    │
-│ Node.js  │  │ Node.js  │  │ Node.js  │  │ Node.js  │
-│ port3001 │  │ port3004 │  │ port3002 │  │ port3003 │
-│          │  │          │  │          │  │          │
-│  field:  │  │  field:  │  │GET /trans│  │POST init │
-│  owner   │  │ account_ │  │GET /:id  │  │GET status│
-│          │  │  holder  │  │POST      │  │POST      │
-│GET /accts│  │GET /accts│  │ /filter  │  │ /cancel  │
-│GET /:id  │  │GET /:id  │  │          │  │          │
-│GET /bal  │  │GET /bal  │  │          │  │          │
-└──────────┘  └──────────┘  └──────────┘  └──────────┘
-  v1.0.0 ◄────────────────► v2.0.0
-       API Versioning — both live simultaneously
+┌──────────────────────────────────────────────────────────────────┐
+│                        CONSUMERS                                 │
+│   FintechApp          SandboxApp        Postman     React        │
+│  (Standard tier)     (Sandbox tier)   (Testing)   Dashboard      │
+│   50 req/min          5 req/min        7 tests    Vite+MUI       │
+└──────────────┬──────────────┬──────────────┬──────────┬─────────┘
+               │              │              │          │
+               │       HTTPS + Bearer JWT token         │
+               └──────────────┴──────────────┴──────────┘
+                                    │
+                                    ▼
+┌──────────────────────────────────────────────────────────────────┐
+│                    WSO2 API MANAGER 4.6                          │
+│                                                                  │
+│  Management Plane — port 9443                                    │
+│  ├── Admin Portal     → throttling tiers · key manager           │
+│  ├── Publisher Portal → publish APIs · scopes · versioning       │
+│  └── Developer Portal → subscribe apps · generate tokens         │
+│                                                                  │
+│  Gateway Runtime — port 8243                                     │
+│  ① Validate JWT token      → 401 if invalid / expired            │
+│  ② Check OAuth2 scope      → 403 if wrong scope                  │
+│  ③ Enforce rate limit      → 429 if exceeded                     │
+│  ④ Strip internal_ref      → field masking (clean response)      │
+│  ⑤ Response caching        → 300s TTL · 200ms → 17ms (12×)       │
+│  ⑥ Route to backend        → forward to correct Docker service   │
+│                                                                  │
+│  Choreo Analytics           → API usage · errors · latency       │
+└──┬─────────────┬──────────────┬──────────────┬───────────────────┘
+   │             │              │              │
+   ▼             ▼              ▼              ▼
+┌─────────┐  ┌─────────┐  ┌──────────┐  ┌──────────┐
+│Accounts │  │Accounts │  │  Trans.  │  │Payments  │
+│ API v1  │  │ API v2  │  │   API    │  │  API     │
+│ Docker  │  │ Docker  │  │  Docker  │  │  Docker  │
+│  :3001  │  │  :3004  │  │  :3002   │  │  :3003   │
+│         │  │         │  │          │  │          │
+│ field:  │  │ field:  │  │GET /trans│  │POST init │
+│  owner  │  │ account_│  │GET /:id  │  │GET status│
+│         │  │  holder │  │POST      │  │POST      │
+│GET/accts│  │GET/accts│  │ /filter  │  │ /cancel  │
+│GET /:id │  │GET /:id │  │          │  │          │
+│GET /bal │  │GET /bal │  │          │  │          │
+└─────────┘  └─────────┘  └──────────┘  └──────────┘
+  v1.0.0 ◄──────────────────► v2.0.0
+      API Versioning — both live simultaneously
+      All 4 services managed by docker compose up
 ```
 
 ---
@@ -75,10 +90,13 @@ This is the same architectural pattern used by NPCI for UPI APIs, HDFC for Open 
 |-------|-----------|---------|
 | API Gateway | WSO2 API Manager | 4.6.0 |
 | Backend | Node.js (built-in http module) | 18 LTS |
+| Containerization | Docker + Docker Compose | Latest |
+| Frontend Dashboard | React + Vite + Material UI | MUI v9 |
 | API Spec | OpenAPI 3.0 YAML | 3.0 |
 | Testing | Postman | Latest |
 | APIOps | WSO2 apictl | 4.6.0 |
 | CI/CD | GitHub Actions | - |
+| Analytics | Choreo Analytics (WSO2) | - |
 | Version Control | Git + GitHub | - |
 | OS | Windows + WSL (Ubuntu) | - |
 
@@ -90,9 +108,23 @@ This is the same architectural pattern used by NPCI for UPI APIs, HDFC for Open 
 openbankapi-gateway/
 ├── backend/
 │   ├── accounts/          Node.js Accounts API — port 3001
+│   │   ├── index.js
+│   │   └── Dockerfile
 │   ├── accounts-v2/       Node.js Accounts API v2 — port 3004
+│   │   ├── index.js
+│   │   └── Dockerfile
 │   ├── transactions/      Node.js Transactions API — port 3002
+│   │   ├── index.js
+│   │   └── Dockerfile
 │   └── payments/          Node.js Payments API — port 3003
+│       ├── index.js
+│       └── Dockerfile
+├── frontend/              React + Vite + MUI Dashboard
+│   ├── src/
+│   │   ├── App.jsx        6-page dashboard — Overview, Accounts,
+│   │   └── main.jsx       Transactions, Payments, Gateway, Test Results
+│   ├── package.json
+│   └── vite.config.js     Proxy config for WSO2 gateway
 ├── specs/
 │   ├── accounts.yaml      OpenAPI 3.0 spec for Accounts API
 │   ├── transactions.yaml  OpenAPI 3.0 spec for Transactions API
@@ -103,10 +135,13 @@ openbankapi-gateway/
 │   ├── PaymentsAPI_1.0.0.zip
 │   └── deploy.sh          One command deploys all APIs to WSO2
 ├── postman/
-│   └── OpenBankAPI_Tests.json
+│   ├── openBankApiSecurity-tests.json     7 gateway security tests — 401, 403, 429, 400
+│   ├── openBankGateway-tests.json         Gateway endpoint tests — all 3 APIs
+│   └── openBankVersioning-tests.json      API versioning tests — v1 owner vs v2 account_holder
 ├── .github/
 │   └── workflows/
 │       └── api-ci.yml     GitHub Actions CI pipeline
+├── docker-compose.yml     Starts all 4 backends with one command
 └── README.md
 ```
 
@@ -178,6 +213,7 @@ All APIs are bundled as **OpenBankAPI Suite** API Product:
 
 - WSO2 API Manager 4.6.0 installed
 - Node.js 18 LTS installed in WSL
+- Docker Desktop with WSL integration enabled
 - apictl 4.6.0 installed
 - Postman desktop app
 - WSL (Ubuntu) on Windows
@@ -195,22 +231,20 @@ sh wso2server.sh start
 
 Wait 3-5 minutes for WSO2 to fully start. Open `https://localhost:9443/publisher` to confirm.
 
-### 2. Start all backend services
-
-Open 4 separate WSL terminal tabs and run one command in each:
+### 2. Start all backend services using Docker
 
 ```bash
-# Tab 1 — Accounts v1
-cd backend/accounts && node index.js
+cd openbankapi-gateway
+docker compose up --build
+```
 
-# Tab 2 — Accounts v2
-cd backend/accounts-v2 && node index.js
+All 4 backends start together — no need to open 4 terminal tabs.
 
-# Tab 3 — Transactions
-cd backend/transactions && node index.js
-
-# Tab 4 — Payments
-cd backend/payments && node index.js
+```
+accounts-api      | Accounts API running on port 3001
+accounts-api-v2   | Accounts API v2 running on port 3004
+transactions-api  | Transactions API running on port 3002
+payments-api      | Payments API running on port 3003
 ```
 
 ### 3. Deploy APIs to WSO2 using apictl
@@ -237,6 +271,32 @@ GET https://localhost:8243/banking/1.0.0/accounts
 Authorization: Bearer <access_token>
 ```
 
+### 6. Start the React Dashboard
+
+```powershell
+cd frontend
+npm run dev
+```
+
+Open `http://localhost:5173` — click **Generate Token** to load live data.
+
+---
+
+## React Dashboard
+
+A professional banking dashboard built with React + Vite + Material UI that calls all APIs through the WSO2 gateway in real time.
+
+| Page | What it shows |
+|------|--------------|
+| Overview | 4 stat cards + account balances + recent transactions + test pass rate |
+| Accounts | Detailed account cards with portfolio share bars + account summary table |
+| Transactions | Full ledger with credit/debit breakdown and totals |
+| Payments | Payment records with status tracking |
+| Gateway | WSO2 config — endpoints, security, rate limits, caching, backend info |
+| Test Results | All 3 Postman collections — 21 tests with PASS/FAIL status |
+
+The **Test Results** page shows all 21 test cases across 3 Postman collections with collection-level filter tabs. Each row shows the exact test name, HTTP method, endpoint, expected result, actual result, and PASS/FAIL badge.
+
 ---
 
 ## WSO2 Portal Configuration
@@ -251,7 +311,15 @@ Authorization: Bearer <access_token>
 
 ## Test Scenarios
 
-All 7 gateway security tests are in the Postman collection:
+Three Postman collections cover all test scenarios:
+
+| Collection | Purpose |
+|-----------|---------|
+| `openBankApiSecurity-tests.json` | 7 gateway security tests |
+| `openBankGateway-tests.json` | Gateway endpoint tests for all 3 APIs |
+| `openBankVersioning-tests.json` | v1 vs v2 versioning verification |
+
+**Security tests — openBankApiSecurity-tests.json:**
 
 | Test | Expected Result |
 |------|----------------|
@@ -263,7 +331,7 @@ All 7 gateway security tests are in the Postman collection:
 | Malformed payment body | 400 Bad Request |
 | internal_ref field stripped | 200 — field absent in response |
 
-Import `postman/OpenBankAPI_Tests.json` into Postman to run all tests.
+Import any collection from the `postman/` folder into Postman to run the tests.
 
 ---
 
@@ -293,6 +361,41 @@ GitHub Actions runs automatically on every git push:
 - **CI Summary** — prints commit info and test results
 
 View pipeline runs in the **Actions** tab of this repo.
+
+---
+
+## Docker
+
+All 4 backend services are containerized with individual Dockerfiles and managed together via Docker Compose:
+
+```bash
+# Start all services
+docker compose up --build
+
+# Start in background
+docker compose up -d
+
+# Stop all services
+docker compose down
+
+# View running containers
+docker ps
+```
+
+Each service runs in an isolated container on its own port — no dependency conflicts, clean startup every time.
+
+---
+
+## Choreo Analytics
+
+API traffic is monitored in real time via WSO2 Choreo Analytics:
+
+- API usage graphs — requests per endpoint over time
+- Error rate breakdown — 401, 403, 429 counts
+- Latency trends — response time per API
+- Top consumers — FintechApp vs SandboxApp usage
+
+Dashboard: `https://console.choreo.dev/insights`
 
 ---
 
@@ -326,14 +429,21 @@ bash apictl/deploy.sh
 
 6. **Response caching** — Enabling WSO2 response caching on GET /accounts reduced response time from 200ms to 17ms. The backend is called once every 300 seconds regardless of how many consumers are calling — critical for high traffic banking systems.
 
+7. **Docker containerization** — All 4 backends run as isolated Docker containers managed by Docker Compose. One command starts everything — no terminal tab juggling, no port conflicts, production-like setup.
+
+8. **API Analytics** — Choreo Analytics captures real gateway traffic — request counts, error rates, latency trends — without any changes to Node.js code. The gateway handles all observability automatically.
+
 ---
 
 ## Project built with
 
 - WSO2 API Manager 4.6.0
 - Node.js 18 LTS
+- Docker + Docker Compose
+- React + Vite + Material UI v9
 - GitHub Actions
 - WSO2 apictl 4.6.0
+- Choreo Analytics
 - Postman
 
 ---

@@ -1,0 +1,132 @@
+  {
+    "info": {
+      "_postman_id": "5a19c687-104b-411a-9535-58cecd50d592",
+      "name": "openBankApiSecurity-tests",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+      "_exporter_id": "54183607",
+      "_collection_link": "https://go.postman.co/collection/54183607-5a19c687-104b-411a-9535-58cecd50d592?source=collection_link"
+    },
+    "item": [
+      {
+        "name": "fintech app bearer token",
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test(\"Successful POST request\", function () {",
+                "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                "});",
+                ""
+              ]
+            }
+          }
+        ],
+        "request": {
+          "method": "POST",
+          "header": [],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n\t\"name\": \"Add your name in the body\"\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          },
+          "url": {
+            "raw": "postman-echo.com/post",
+            "host": [
+              "postman-echo",
+              "com"
+            ],
+            "path": [
+              "post"
+            ]
+          },
+          "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+        },
+        "response": []
+      },
+      {
+        "name": "1 — Valid token GET accounts",
+        "request": {
+          "method": "GET",
+          "header": []
+        },
+        "response": []
+      },
+      {
+        "name": "2 — No token",
+        "request": {
+          "method": "GET",
+          "header": []
+        },
+        "response": []
+      },
+      {
+        "name": "3 — Invalid token",
+        "request": {
+          "method": "GET",
+          "header": []
+        },
+        "response": []
+      },
+      {
+        "name": "4 — Wrong scope",
+        "request": {
+          "method": "GET",
+          "header": []
+        },
+        "response": []
+      },
+      {
+        "name": "5 — Rate limit exceeded",
+        "request": {
+          "method": "GET",
+          "header": []
+        },
+        "response": []
+      },
+      {
+        "name": "6 — Missing required fields",
+        "request": {
+          "method": "GET",
+          "header": []
+        },
+        "response": []
+      },
+      {
+        "name": "7 — internal_ref field striped",
+        "request": {
+          "auth": {
+            "type": "bearer",
+            "bearer": [
+              {
+                "key": "token",
+                "value": "eyJ4NXQiOiJNekF6TVRGak9EUTFNRE5qT1RVMVpEQTROR1E1TURrell6RTNNV0k0TW1SbFpHVTNZelpqWWprNFpHUmtNMlJoTW1Jd01qQXhZekpsTUdKak5qZG1OdyIsImtpZCI6Ik16QXpNVEZqT0RRMU1ETmpPVFUxWkRBNE5HUTVNRGt6WXpFM01XSTRNbVJsWkdVM1l6WmpZams0WkdSa00yUmhNbUl3TWpBeFl6SmxNR0pqTmpkbU53X1JTMjU2IiwidHlwIjoiYXQrand0IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJhNjMwZTZkYS1iMDcwLTQ2ODMtOTcyMi0yNjJjZjhjOWY3ZjMiLCJhdXQiOiJBUFBMSUNBVElPTiIsImF1ZCI6Ik5mbk1GeVJ1UVl5TVh0U2ZwV0I3YVJQMjBsMGEiLCJuYmYiOjE3NzY4NTk2NzAsImF6cCI6Ik5mbk1GeVJ1UVl5TVh0U2ZwV0I3YVJQMjBsMGEiLCJzY29wZSI6ImFjY291bnRzOnJlYWQgcGF5bWVudHM6cmVhZCBwYXltZW50czp3cml0ZSB0cmFuc2FjdGlvbnM6cmVhZCIsImlzcyI6Imh0dHBzOi8vbG9jYWxob3N0Ojk0NDMvb2F1dGgyL3Rva2VuIiwiZXhwIjoxNzc2ODYzMjcwLCJpYXQiOjE3NzY4NTk2NzAsImp0aSI6IjE2YmQxOTg1LTkxMjYtNDc5MS04MjIzLTFhNDhkYzU1Y2NiNiIsImNsaWVudF9pZCI6Ik5mbk1GeVJ1UVl5TVh0U2ZwV0I3YVJQMjBsMGEifQ.G38ih851oBUFgzwFfjyQsK8A-R89-vyHqtUzvvaR5AitxlZCNcC-lpzXlbZG7tmqhbOOViMwE1zbT-eqBlHodgFvV5ck9rsg8R2pkYDLyNlZyYWqDfM5L8irJWaw2tZzItBjjhAuM95eRkm3_rh0pNVtcqvctJOptD4quMrJjeC2p7EZMhDa_BcBSFFRs83_ED9grsR6yoh-JxXLs5v6UB4kR3aFhC3xuFhiSd5cDTyYH4weIYXJYdsFQcf_xBzXtuZZJEiWJB4csdi0sL8XIMiJGPY__4XfgH7aYcd8Tf57YWJA3Iwnx-1fL0mP93XVXBchQA1SiBulX9JgSQy85A",
+                "type": "string"
+              }
+            ]
+          },
+          "method": "GET",
+          "header": [],
+          "url": {
+            "raw": "https://localhost:8243/banking/1.0.0/accounts",
+            "protocol": "https",
+            "host": [
+              "localhost"
+            ],
+            "port": "8243",
+            "path": [
+              "banking",
+              "1.0.0",
+              "accounts"
+            ]
+          }
+        },
+        "response": []
+      }
+    ]
+  }
