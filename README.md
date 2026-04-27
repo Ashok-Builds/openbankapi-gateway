@@ -1,13 +1,15 @@
 # OpenBankAPI Gateway
 
 [![CI Pipeline](https://github.com/YOUR_USERNAME/openbankapi-gateway/actions/workflows/api-ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/openbankapi-gateway/actions/workflows/api-ci.yml)
-![WSO2](https://img.shields.io/badge/WSO2-API%20Manager%204.6-FF6600?style=flat&logo=data:image/png;base64,iVBORw0KGgo=)
-![Node.js](https://img.shields.io/badge/Node.js-18%20LTS-339933?style=flat&logo=nodedotjs&logoColor=white)
-![React](https://img.shields.io/badge/React-Vite%20%2B%20MUI-61DAFB?style=flat&logo=react&logoColor=black)
-![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat&logo=docker&logoColor=white)
-![OAuth2](https://img.shields.io/badge/Auth-OAuth2%20JWT-635BFF?style=flat)
-![Analytics](https://img.shields.io/badge/Analytics-Choreo-00B4D8?style=flat)
-![License](https://img.shields.io/badge/License-MIT-green?style=flat)
+![WSO2](https://img.shields.io/badge/WSO2_API_Manager-4.6.0-FF6600?style=for-the-badge&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-18_LTS-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![React](https://img.shields.io/badge/React-Vite_%2B_MUI-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![OAuth2](https://img.shields.io/badge/Auth-OAuth2_JWT-635BFF?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
+![Postman](https://img.shields.io/badge/Postman-21_Tests-FF6C37?style=for-the-badge&logo=postman&logoColor=white)
+![Analytics](https://img.shields.io/badge/Choreo-Analytics-00B4D8?style=for-the-badge&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-CI%2FCD-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-22C55E?style=for-the-badge)
 
 A managed API gateway simulating an open banking platform built on **WSO2 API Manager 4.6**. This project demonstrates how banks like HDFC, Axis, and NPCI expose their core services — Accounts, Transactions, and Payments — to fintech partners through a secure, governed, and throttled API gateway.
 
