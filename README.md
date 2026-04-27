@@ -1,6 +1,5 @@
 # OpenBankAPI Gateway
 
-[![CI Pipeline](https://github.com/YOUR_USERNAME/openbankapi-gateway/actions/workflows/api-ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/openbankapi-gateway/actions/workflows/api-ci.yml)
 ![WSO2](https://img.shields.io/badge/WSO2_API_Manager-4.6.0-FF6600?style=for-the-badge&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-18_LTS-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
 ![React](https://img.shields.io/badge/React-Vite_%2B_MUI-61DAFB?style=for-the-badge&logo=react&logoColor=black)
