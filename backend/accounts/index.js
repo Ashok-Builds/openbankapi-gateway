@@ -9,6 +9,14 @@ const accounts = [
 const server = http.createServer((req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204);
+    res.end();
+    return;
+  }
 
   const url = req.url;
   const method = req.method;
@@ -17,6 +25,7 @@ const server = http.createServer((req, res) => {
     const sanitized = accounts.map(({ internal_ref, ...rest }) => rest);
     res.writeHead(200);
     res.end(JSON.stringify({ accounts: sanitized }));
+
   } else if (method === 'GET' && url.startsWith('/accounts/') && url.endsWith('/balance')) {
     const id = url.split('/')[2];
     const account = accounts.find(a => a.id === id);

@@ -284,10 +284,10 @@ const LoginPage = ({ onLogin }) => {
 
 // ── FEATURE 1: API HEALTH CHECK PAGE ─────────────────────────────────────
 const BACKENDS = [
-  { id: 'accounts-v1',   label: 'Accounts v1',   url: 'http://localhost:3001/accounts',     port: 3001, color: '#635BFF', field: 'owner' },
-  { id: 'accounts-v2',   label: 'Accounts v2',   url: 'http://localhost:3004/accounts',     port: 3004, color: '#0D7A4E', field: 'account_holder' },
-  { id: 'transactions',  label: 'Transactions',  url: 'http://localhost:3002/transactions', port: 3002, color: '#B54708', field: 'transactions' },
-  { id: 'payments',      label: 'Payments',      url: 'http://localhost:3003/payments',     port: 3003, color: '#0EA5E9', field: 'payments' },
+  { id: 'accounts-v1',   label: 'Accounts v1',   url: '/health/3001/accounts',     port: 3001, color: '#635BFF', field: 'owner' },
+  { id: 'accounts-v2',   label: 'Accounts v2',   url: '/health/3004/accounts',     port: 3004, color: '#0D7A4E', field: 'account_holder' },
+  { id: 'transactions',  label: 'Transactions',  url: '/health/3002/transactions', port: 3002, color: '#B54708', field: 'transactions' },
+  { id: 'payments',      label: 'Payments',      url: '/health/3003/payments',     port: 3003, color: '#0EA5E9', field: 'payments' },
 ]
 
 const HealthCheckPage = () => {
